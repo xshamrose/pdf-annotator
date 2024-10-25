@@ -15,6 +15,9 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Get the base path from the homepage in package.json
+  const basePath = process.env.PUBLIC_URL;
+
   const handleFileSelect = async (file: File) => {
     try {
       setIsLoading(true);
@@ -42,10 +45,9 @@ function App() {
     >
       <AnnotatorProvider>
         <Routes>
-          <Route path="/" element={<PDFLandingPage />} />
-
+          <Route path={`${basePath}/`} element={<PDFLandingPage />} />
           <Route
-            path="/upload"
+            path={`${basePath}/upload`}
             element={
               <LayoutWrapper>
                 <div className="max-w-7xl mx-auto">
@@ -61,7 +63,7 @@ function App() {
                         {selectedFile && !isLoading && (
                           <div className="mt-4 text-center">
                             <Button
-                              onClick={() => navigate("/annotate")}
+                              onClick={() => navigate(`${basePath}/annotate`)}
                               className="bg-blue-600 hover:bg-blue-700 text-white"
                             >
                               Start Annotating
@@ -77,7 +79,7 @@ function App() {
           />
 
           <Route
-            path="/organize/*"
+            path={`${basePath}/organize/*`}
             element={
               <LayoutWrapper>
                 <PDFOrganizer onFileSelect={handleFileSelect} />
@@ -86,7 +88,7 @@ function App() {
           />
 
           <Route
-            path="/annotate"
+            path={`${basePath}/annotate`}
             element={
               <LayoutWrapper>
                 {selectedFile ? (
@@ -95,7 +97,7 @@ function App() {
                   <div className="text-center p-8">
                     <p className="text-gray-600">No document selected.</p>
                     <Button
-                      onClick={() => navigate("/upload")}
+                      onClick={() => navigate(`${basePath}/upload`)}
                       className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       Return to Upload

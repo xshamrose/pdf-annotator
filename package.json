@@ -1,6 +1,7 @@
 {
-  "name": "pdf-annotator",
   "homepage": "https://yourusername.github.io/pdf-annotator",
+  "name": "pdf-annotator",
+  
   "version": "0.1.0",
   "private": true,
   "dependencies": {
