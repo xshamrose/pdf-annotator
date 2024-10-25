@@ -1,15 +1,12 @@
 {
   "files": {
-    "main.css": "/pdf-annotator/static/css/main.8974b7d7.css",
-    "main.js": "/pdf-annotator/static/js/main.10271d15.js",
-    "static/js/453.24f22d20.chunk.js": "/pdf-annotator/static/js/453.24f22d20.chunk.js",
+    "main.css": "/pdf-annotator/static/css/main.31d6cfe0.css",
+    "main.js": "/pdf-annotator/static/js/main.c6110776.js",
     "index.html": "/pdf-annotator/index.html",
-    "main.8974b7d7.css.map": "/pdf-annotator/static/css/main.8974b7d7.css.map",
-    "main.10271d15.js.map": "/pdf-annotator/static/js/main.10271d15.js.map",
-    "453.24f22d20.chunk.js.map": "/pdf-annotator/static/js/453.24f22d20.chunk.js.map"
+    "main.c6110776.js.map": "/pdf-annotator/static/js/main.c6110776.js.map"
   },
   "entrypoints": [
-    "static/css/main.8974b7d7.css",
-    "static/js/main.10271d15.js"
+    "static/css/main.31d6cfe0.css",
+    "static/js/main.c6110776.js"
   ]
 }
