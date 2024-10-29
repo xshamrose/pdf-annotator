@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import PDFAnnotator from "./components/pdf/PDFAnnotator";
 import PDFLandingPage from "./components/layout/PDFLandingPage";
 import { ThemeProvider } from "./providers";
+import PDFMerge from "./components/organizer/PDFMerge";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -43,7 +44,6 @@ function App() {
       <AnnotatorProvider>
         <Routes>
           <Route path="/" element={<PDFLandingPage />} />
-
           <Route
             path="/upload"
             element={
@@ -84,7 +84,14 @@ function App() {
               </LayoutWrapper>
             }
           />
-
+          <Route
+            path="/organize/merge"
+            element={
+              <LayoutWrapper>
+                <PDFMerge />
+              </LayoutWrapper>
+            }
+          />
           <Route
             path="/annotate"
             element={
