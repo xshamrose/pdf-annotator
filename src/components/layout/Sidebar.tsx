@@ -6,7 +6,6 @@ import {
   Edit,
   Pencil,
   MoreHorizontal,
-  FileDown,
   File,
   Image,
   FileSpreadsheet,
@@ -21,6 +20,7 @@ import {
   RotateCw,
   Trash,
   FileOutput,
+  FileAxis3d,
 } from "lucide-react";
 
 interface SubMenuProps {
@@ -211,7 +211,7 @@ const Sidebar: React.FC = () => {
     {
       href: "/compress",
       label: "Compress",
-      icon: FileDown,
+      icon: FileAxis3d,
       width: "34px",
     },
     {

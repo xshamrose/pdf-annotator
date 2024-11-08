@@ -2,14 +2,16 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import PDFUploader from "./components/pdf/PDFUploader";
 import PDFOrganizer from "./components/pdf/PDFOrganizer";
+import PDFAnnotator from "./components/pdf/PDFAnnotator";
+import PDFLandingPage from "./components/layout/PDFLandingPage";
+import PDFMerge from "./components/organizer/PDFMerge";
+import ExportPage from "./components/export/Exportpage";
 import { AnnotatorProvider } from "./context/AnnotatorContext";
 import { useState } from "react";
 import { Button } from "./components/ui/button";
 import { Loader2 } from "lucide-react";
-import PDFAnnotator from "./components/pdf/PDFAnnotator";
-import PDFLandingPage from "./components/layout/PDFLandingPage";
 import { ThemeProvider } from "./providers";
-import PDFMerge from "./components/organizer/PDFMerge";
+import Split from "./components/organizer/SplitPDF";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -93,6 +95,14 @@ function App() {
             }
           />
           <Route
+            path="/organize/split"
+            element={
+              <LayoutWrapper>
+                <Split />
+              </LayoutWrapper>
+            }
+          />
+          <Route
             path="/annotate"
             element={
               <LayoutWrapper>
@@ -109,6 +119,15 @@ function App() {
                     </Button>
                   </div>
                 )}
+              </LayoutWrapper>
+            }
+          />
+
+          <Route
+            path="/export"
+            element={
+              <LayoutWrapper>
+                <ExportPage />
               </LayoutWrapper>
             }
           />
