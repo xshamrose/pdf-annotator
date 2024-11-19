@@ -51,10 +51,11 @@
  
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
@@ -78,7 +79,7 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  @apply w-2;
+  width: 2px;
 }
 
 ::-webkit-scrollbar-track {
@@ -92,3 +93,4 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400;
 }
+

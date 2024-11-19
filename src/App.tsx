@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import PDFUploader from "./components/pdf/PDFUploader";
 import PDFOrganizer from "./components/pdf/PDFOrganizer";
@@ -12,6 +12,13 @@ import { Button } from "./components/ui/button";
 import { Loader2 } from "lucide-react";
 import { ThemeProvider } from "./providers";
 import Split from "./components/organizer/SplitPDF";
+import SplitResultsPage from "./components/export/SplitResultsPage";
+import PDFRotate from "./components/organizer/PDFRotate";
+import PDFDelete from "./components/organizer/PDFDelete";
+import PdfExtractor from "./components/organizer/PdfExtractor";
+import ExtractResultsPage from "./components/export/ExtractResultsPage";
+import PDFConverterPage from "./components/pdfconverter/PDFConverterPage";
+import PdfCompress from "./components/pdfcompressor/PdfCompressor";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -35,7 +42,12 @@ function App() {
       <div className="bg-gray-50 p-4">{children}</div>
     </Layout>
   );
-
+  // Create a wrapper for convert routes that includes the layout
+  const ConvertWrapper = () => (
+    <LayoutWrapper>
+      <Outlet />
+    </LayoutWrapper>
+  );
   return (
     <ThemeProvider
       attribute="class"
@@ -77,7 +89,14 @@ function App() {
               </LayoutWrapper>
             }
           />
-
+          <Route
+            path="/compress"
+            element={
+              <LayoutWrapper>
+                <PdfCompress />
+              </LayoutWrapper>
+            }
+          />
           <Route
             path="/organize/*"
             element={
@@ -103,6 +122,42 @@ function App() {
             }
           />
           <Route
+            path="/organize/rotate"
+            element={
+              <LayoutWrapper>
+                <PDFRotate />
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/organize/delete"
+            element={
+              <LayoutWrapper>
+                <PDFDelete />
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/organize/extract"
+            element={
+              <LayoutWrapper>
+                <PdfExtractor />
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/organize/extract/results"
+            element={<ExtractResultsPage />}
+          />
+          <Route
+            path="/organize/split/results"
+            element={
+              <LayoutWrapper>
+                <SplitResultsPage />
+              </LayoutWrapper>
+            }
+          />
+          <Route
             path="/annotate"
             element={
               <LayoutWrapper>
@@ -122,7 +177,33 @@ function App() {
               </LayoutWrapper>
             }
           />
-
+          <Route
+            path="edit/annotate"
+            element={
+              <LayoutWrapper>
+                {selectedFile ? (
+                  <PDFAnnotator file={selectedFile} />
+                ) : (
+                  <div className="text-center p-8">
+                    <p className="text-gray-600">No document selected.</p>
+                    <Button
+                      onClick={() => navigate("/upload")}
+                      className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Return to Upload
+                    </Button>
+                  </div>
+                )}
+              </LayoutWrapper>
+            }
+          />
+          <Route path="/convert" element={<ConvertWrapper />}>
+            <Route path="to-pdf" element={<PDFConverterPage />} />
+            <Route path="word" element={<PDFConverterPage />} />
+            <Route path="excel" element={<PDFConverterPage />} />
+            <Route path="powerpoint" element={<PDFConverterPage />} />
+            <Route path="image" element={<PDFConverterPage />} />
+          </Route>
           <Route
             path="/export"
             element={

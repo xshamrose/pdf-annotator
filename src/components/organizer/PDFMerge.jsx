@@ -344,6 +344,60 @@ const PDFMerge = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  const handleFileInsert = async (event, insertIndex) => {
+    event.stopPropagation();
+    const input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+    input.accept = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*";
+
+    input.onchange = async (e) => {
+      const selectedFiles = Array.from(e.target.files);
+
+      // Process each file
+      const newFiles = await Promise.all(
+        selectedFiles.map(async (file) => {
+          const id = Math.random().toString(36).substr(2, 9);
+
+          if (file.type === "application/pdf") {
+            const pdfData = await generatePDFThumbnail(file);
+            if (pdfData) {
+              return {
+                id,
+                file,
+                preview: pdfData.preview,
+                pages: pdfData.pages,
+              };
+            }
+          } else if (file.type.startsWith("image/")) {
+            return {
+              id,
+              file,
+              preview: URL.createObjectURL(file),
+              pages: 1,
+            };
+          }
+
+          return {
+            id,
+            file,
+            preview: null,
+            pages: 1,
+          };
+        })
+      );
+
+      // Insert the new files at the specified index
+      setFiles((prev) => {
+        const newFileList = [...prev];
+        newFileList.splice(insertIndex + 1, 0, ...newFiles);
+        return newFileList;
+      });
+    };
+
+    input.click();
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-6">
       {/* Top Navigation */}
@@ -412,85 +466,93 @@ const PDFMerge = () => {
       </div>
 
       {/* File Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8  relative">
         {files.map((file, index) => (
-          <div
-            key={file.id}
-            className="group relative bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200"
-          >
-            <div className="aspect-[3/4] relative bg-gray-50 rounded-t-lg overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                {file.preview ? (
-                  <img
-                    src={file.preview}
-                    alt={file.file.name}
-                    className="w-[70%] h-[70%] object-contain transition-transform duration-200"
-                    style={{
-                      transform: `rotate(${rotation[file.id] || 0}deg)`,
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <FileText className="w-12 h-12 text-gray-400" />
+          <div key={file.id} className="relative">
+            <div className="group bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+              <div className="aspect-[3/4] relative bg-gray-50 rounded-t-lg overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {file.preview ? (
+                    <img
+                      src={file.preview}
+                      alt={file.file.name}
+                      className="w-[70%] h-[70%] object-contain transition-transform duration-200"
+                      style={{
+                        transform: `rotate(${rotation[file.id] || 0}deg)`,
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <FileText className="w-12 h-12 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* File Name Badge */}
+                <div className=" px-2  text-xs font-medium bg-black/10 text-gray-700">
+                  {file.file.name}
+                </div>
+                {/* File Number Badge */}
+                <div className="absolute left-2 top-5 bg-white/90 rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium text-gray-700">
+                  {index + 1}
+                </div>
+
+                {/* Pages Badge */}
+                <div className="absolute left-2 bottom-2 bg-white/90 rounded-full px-2 py-0.5 text-xs font-medium text-gray-700">
+                  {file.pages} page{file.pages !== 1 ? "s" : ""}
+                </div>
+
+                {/* Hover Actions */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-t-lg">
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <button
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setZoomedFile(file);
+                      }}
+                    >
+                      <ZoomIn className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSingleRotate(file.id, "right");
+                      }}
+                    >
+                      <RotateCw className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDuplicate(file);
+                      }}
+                    >
+                      <Copy className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(file.id);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 text-white" />
+                    </button>
                   </div>
-                )}
-              </div>
-              {/* File Name Badge */}
-              <div className=" px-2  text-xs font-medium bg-black/10 text-gray-700">
-                {file.file.name}
-              </div>
-              {/* File Number Badge */}
-              <div className="absolute left-2 top-5 bg-white/90 rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium text-gray-700">
-                {index + 1}
-              </div>
-
-              {/* Pages Badge */}
-              <div className="absolute left-2 bottom-2 bg-white/90 rounded-full px-2 py-0.5 text-xs font-medium text-gray-700">
-                {file.pages} page{file.pages !== 1 ? "s" : ""}
-              </div>
-
-              {/* Hover Actions */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-t-lg">
-                <div className="absolute top-2 right-2 flex gap-2">
-                  <button
-                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setZoomedFile(file);
-                    }}
-                  >
-                    <ZoomIn className="w-4 h-4 text-white" />
-                  </button>
-                  <button
-                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSingleRotate(file.id, "right");
-                    }}
-                  >
-                    <RotateCw className="w-4 h-4 text-white" />
-                  </button>
-                  <button
-                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDuplicate(file);
-                    }}
-                  >
-                    <Copy className="w-4 h-4 text-white" />
-                  </button>
-                  <button
-                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(file.id);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4 text-white" />
-                  </button>
                 </div>
               </div>
             </div>
+            {index < files.length - 1 && (
+              <button
+                className="absolute -right-4 top-1/2 transform -translate-y-1/2 translate-x-1/2 w-8 h-8 rounded-full border-2 border-gray-200 bg-white hover:bg-black hover:border-black transition-colors duration-200 flex items-center justify-center group/add z-10"
+                onClick={(e) => handleFileInsert(e, index)}
+              >
+                <Plus className="w-4 h-4 text-gray-400 group-hover/add:text-white" />
+              </button>
+            )}
           </div>
         ))}
 
