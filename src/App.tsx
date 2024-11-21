@@ -19,6 +19,10 @@ import PdfExtractor from "./components/organizer/PdfExtractor";
 import ExtractResultsPage from "./components/export/ExtractResultsPage";
 import PDFConverterPage from "./components/pdfconverter/PDFConverterPage";
 import PdfCompress from "./components/pdfcompressor/PdfCompressor";
+import PDFSignComponent from "./components/pdfsign/PDFSignComponent";
+import Protect from "./components/more/Protect";
+import Unlock from "./components/more/Unlock";
+import Flatten from "./components/more/Flatten";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -94,6 +98,14 @@ function App() {
             element={
               <LayoutWrapper>
                 <PdfCompress />
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/sign"
+            element={
+              <LayoutWrapper>
+                <PDFSignComponent />
               </LayoutWrapper>
             }
           />
@@ -204,6 +216,30 @@ function App() {
             <Route path="powerpoint" element={<PDFConverterPage />} />
             <Route path="image" element={<PDFConverterPage />} />
           </Route>
+          <Route
+            path="/more/protect"
+            element={
+              <LayoutWrapper>
+                <Protect />
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/more/unlock"
+            element={
+              <LayoutWrapper>
+                <Unlock />
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/more/flatten"
+            element={
+              <LayoutWrapper>
+                <Flatten />
+              </LayoutWrapper>
+            }
+          />
           <Route
             path="/export"
             element={
