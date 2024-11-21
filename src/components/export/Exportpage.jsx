@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
@@ -13,12 +12,10 @@ import {
   saveAsPDF,
   saveAsWord,
   saveAsPowerPoint,
-  // saveAsExcel,
   saveAsImage,
 } from "../../utils/exportUtils";
 import { toast } from "../ui/toast";
 
-// Loading state component
 const LoadingState = () => (
   <div className="flex items-center justify-center h-full">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -33,7 +30,7 @@ const ExportPage = () => {
   const [isExporting, setIsExporting] = useState(false);
   const {
     file,
-    fileName = "merged-document",
+    fileName = "protected-document",
     fileSize = "3 MB",
     pageCount = "10",
   } = location.state || {};
@@ -46,7 +43,6 @@ const ExportPage = () => {
       }
 
       try {
-        // Create a blob URL from the file for preview
         const blob = new Blob([file], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
@@ -64,7 +60,6 @@ const ExportPage = () => {
 
     setupPreview();
 
-    // Cleanup function to revoke the blob URL
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -118,9 +113,6 @@ const ExportPage = () => {
         case "powerpoint":
           success = await saveAsPowerPoint(file, fileName);
           break;
-        // case "excel":
-        //   success = await saveAsExcel(file, fileName);
-        //   break;
         case "image":
           success = await saveAsImage(file, fileName);
           break;
@@ -148,13 +140,12 @@ const ExportPage = () => {
     }
   };
 
-  // If no file is available, show a message
   if (!file) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <p className="text-gray-500 mb-4">No file selected</p>
-          <Button onClick={() => navigate("/organize/merge")}>Go Back</Button>
+          <Button onClick={() => navigate("/protect")}>Go Back</Button>
         </div>
       </div>
     );
@@ -163,12 +154,6 @@ const ExportPage = () => {
   const exportOptions = [
     { icon: "📄", label: "Compress PDF", value: "compress", extension: "pdf" },
     { icon: "📝", label: "Word Document", value: "word", extension: "docx" },
-    // {
-    //   icon: "📊",
-    //   label: "Excel Spreadsheet",
-    //   value: "excel",
-    //   extension: "xlsx",
-    // },
     { icon: "📑", label: "PowerPoint", value: "powerpoint", extension: "pptx" },
     { icon: "🖼️", label: "Image", value: "image", extension: "jpg" },
   ];
@@ -181,7 +166,6 @@ const ExportPage = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Left side - Preview */}
       <div className="flex-1 p-2 h-screen border-r border-gray-200">
         <div className="bg-white h-full rounded-lg shadow-sm overflow-hidden">
           <div className="h-10 border-b border-gray-200 flex items-center px-4">
@@ -189,7 +173,7 @@ const ExportPage = () => {
               variant="ghost"
               size="sm"
               className="flex items-center gap-2"
-              onClick={() => navigate("/organize/merge")}
+              onClick={() => navigate("/protect")}
             >
               <ArrowLeft className="w-4 h-4" />
               Back
@@ -212,22 +196,18 @@ const ExportPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Right side - Export options */}
       <div className="w-96 p-4">
         <div className="bg-white rounded-lg shadow-sm p-4 h-full">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-6 h-6 text-green-500">✓</div>
             <span className="font-semibold">Done</span>
           </div>
-
           <div className="mb-4">
             <h3 className="font-medium text-gray-900">{fileName}.pdf</h3>
             <p className="text-sm text-gray-500">
               {fileSize} · {pageCount} pages
             </p>
           </div>
-
           <Button
             className="w-full mb-4 bg-blue-600 hover:bg-blue-700"
             onClick={handleDownload}
@@ -236,7 +216,6 @@ const ExportPage = () => {
             <Download className="w-4 h-4 mr-2" />
             Download
           </Button>
-
           <div className="flex gap-2 mb-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -269,7 +248,6 @@ const ExportPage = () => {
               Share
             </Button>
           </div>
-
           <div className="border-t border-gray-200 pt-4">
             <h4 className="text-sm font-medium mb-2">Continue in</h4>
             <div className="space-y-2">
