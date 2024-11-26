@@ -1,6 +1,6 @@
 // utils/exportUtils.js
 import { saveAs } from "file-saver";
-
+import { protectPDF } from "./protectionUtils";
 // Helper function to convert file size to readable format
 export const formatFileSize = (bytes) => {
   if (bytes === 0) return "0 Bytes";
@@ -11,10 +11,19 @@ export const formatFileSize = (bytes) => {
 };
 
 // Save as PDF
-export const saveAsPDF = async (file, fileName) => {
+export const saveAsPDF = async (file, fileName, password) => {
+  console.log(password, "password");
+
   try {
-    const blob = new Blob([file], { type: "application/pdf" });
-    saveAs(blob, `${fileName}.pdf`);
+    let fileToSave = file;
+
+    // If password is provided, encrypt the PDF
+    if (password) {
+      fileToSave = await protectPDF(file, password);
+    }
+
+    // Use FileSaver.js instead of creating manual download link
+    saveAs(fileToSave, `${fileName}.pdf`);
     return true;
   } catch (error) {
     console.error("Error saving PDF:", error);

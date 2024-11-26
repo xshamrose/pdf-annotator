@@ -33,6 +33,7 @@ const ExportPage = () => {
     fileName = "protected-document",
     fileSize = "3 MB",
     pageCount = "10",
+    password,
   } = location.state || {};
 
   useEffect(() => {
@@ -77,7 +78,8 @@ const ExportPage = () => {
       return;
     }
 
-    const success = await saveAsPDF(file, fileName);
+    const success = await saveAsPDF(file, fileName, password);
+
     if (success) {
       toast({
         title: "Success",
@@ -161,7 +163,7 @@ const ExportPage = () => {
   const continueOptions = [
     { icon: "🔍", label: "Annotate", value: "annotate" },
     { icon: "✍️", label: "Sign", value: "sign" },
-    { icon: "🔒", label: "Protect", value: "protect" },
+    { icon: "🔒", label: "Protect", value: "more/protect" },
   ];
 
   return (
@@ -173,7 +175,7 @@ const ExportPage = () => {
               variant="ghost"
               size="sm"
               className="flex items-center gap-2"
-              onClick={() => navigate("/protect")}
+              onClick={() => navigate("/upload")}
             >
               <ArrowLeft className="w-4 h-4" />
               Back
@@ -257,7 +259,9 @@ const ExportPage = () => {
                   variant="ghost"
                   className="w-full justify-start text-gray-700 hover:bg-gray-50"
                   onClick={() =>
-                    navigate(`/${option.value}`, { state: { file, fileName } })
+                    navigate(`/${option.value}`, {
+                      state: { file, fileName, password },
+                    })
                   }
                 >
                   <span className="mr-2">{option.icon}</span>
