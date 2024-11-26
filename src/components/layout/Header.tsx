@@ -1,5 +1,5 @@
 // components/layout/Header.tsx
-import { ThemeToggle } from "../ui/theme-toggle"
+import { ThemeToggle } from "../ui/theme-toggle";
 
 const Header = () => {
   return (
@@ -10,11 +10,10 @@ const Header = () => {
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <ThemeToggle />
-          
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
 export default Header;

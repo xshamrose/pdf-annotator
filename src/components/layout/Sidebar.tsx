@@ -6,7 +6,6 @@ import {
   Edit,
   Pencil,
   MoreHorizontal,
-  FileDown,
   File,
   Image,
   FileSpreadsheet,
@@ -21,6 +20,9 @@ import {
   RotateCw,
   Trash,
   FileOutput,
+  FileAxis3d,
+  Lock,
+  MinusSquare,
 } from "lucide-react";
 
 interface SubMenuProps {
@@ -207,11 +209,32 @@ const Sidebar: React.FC = () => {
     },
   ];
 
+  const moreItems: ConvertItem[] = [
+    {
+      icon: Lock,
+      label: "Protect",
+      description: "Add password protection to PDF",
+      route: "protect",
+    },
+    {
+      icon: Lock,
+      label: "Unlock",
+      description: "Remove PDF password protection",
+      route: "unlock",
+    },
+    {
+      icon: MinusSquare,
+      label: "Flatten",
+      description: "Flatten PDF annotations",
+      route: "flatten",
+    },
+  ];
+
   const navItems: NavItem[] = [
     {
       href: "/compress",
       label: "Compress",
-      icon: FileDown,
+      icon: FileAxis3d,
       width: "34px",
     },
     {
@@ -246,12 +269,7 @@ const Sidebar: React.FC = () => {
       label: "More",
       icon: MoreHorizontal,
       width: "33px",
-    },
-    {
-      href: "/documents",
-      label: "Documents",
-      icon: FileText,
-      width: "33px",
+      hasSubmenu: true,
     },
   ];
 
@@ -263,6 +281,8 @@ const Sidebar: React.FC = () => {
         return organizeItems;
       case "Edit":
         return editItems;
+      case "More":
+        return moreItems;
       default:
         return [];
     }
@@ -311,6 +331,8 @@ const Sidebar: React.FC = () => {
         return "/organize";
       case "Edit":
         return "/edit";
+      case "More":
+        return "/more";
       default:
         return "";
     }
