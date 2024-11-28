@@ -20,10 +20,18 @@ export const saveAsPDF = async (file, fileName, password) => {
     // If password is provided, encrypt the PDF
     if (password) {
       fileToSave = await protectPDF(file, password);
+      if (!(fileToSave instanceof Blob)) {
+        throw new Error("Encryption failed: Invalid file format");
+      }
+
+      // Explicitly set the right MIME type for encrypted PDFs
+      const encryptedBlob = new Blob([fileToSave], { type: "application/pdf" });
+      saveAs(encryptedBlob, `${fileName}-protected.pdf`);
+    } else {
+      // If no password, save the original file
+      saveAs(file, `${fileName}.pdf`);
     }
 
-    // Use FileSaver.js instead of creating manual download link
-    saveAs(fileToSave, `${fileName}.pdf`);
     return true;
   } catch (error) {
     console.error("Error saving PDF:", error);

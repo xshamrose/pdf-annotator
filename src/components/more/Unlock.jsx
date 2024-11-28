@@ -1,33 +1,59 @@
 import React, { useState } from "react";
-import { Eye } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Eye, Download } from "lucide-react";
+import {
+  unlockPDF,
+  validatePassword,
+  validateFile,
+} from "../../utils/protectionUtils";
 
 const Unlock = () => {
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const downloadFile = (file, fileName) => {
+    // Create a link element, use it to download the file, and remove it
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(file);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleUnlock = async () => {
-    if (!password) {
-      alert("Please enter the password");
+    // Reset previous errors
+    setError(null);
+
+    // Validate file
+    const fileValidation = validateFile(selectedFile);
+    if (!fileValidation.isValid) {
+      setError(fileValidation.message);
+      return;
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.message);
       return;
     }
 
     setIsLoading(true);
     try {
-      // Simulate unlock process
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Attempt to unlock the PDF
+      const result = await unlockPDF(selectedFile, password);
 
-      // Navigate to export page with file data
-      navigate("/export", {
-        state: {
-          file: selectedFile,
-          unlocked: true,
-        },
-      });
+      if (result.success) {
+        // Download the unlocked file
+        downloadFile(result.unlockedFile, `Unlocked_${selectedFile.name}`);
+      } else {
+        setError("Failed to unlock the PDF. Please check your password.");
+      }
     } catch (error) {
-      alert("Failed to unlock the file");
+      setError(error.message || "An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -37,6 +63,8 @@ const Unlock = () => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
+      // Reset any previous errors when a new file is selected
+      setError(null);
     }
   };
 
@@ -118,19 +146,29 @@ const Unlock = () => {
                 </div>
 
                 <div className="space-y-4">
+                  {error && (
+                    <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-2 rounded-md mb-4">
+                      {error}
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">
                       Type this file's password to unlock it
                     </label>
                     <div className="relative">
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full px-3 py-2 border rounded-md pr-10"
                         placeholder="Password"
                       />
-                      <button className="absolute right-3 top-2.5 text-gray-400">
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-2.5 text-gray-400"
+                      >
                         <Eye size={20} />
                       </button>
                     </div>
@@ -141,7 +179,8 @@ const Unlock = () => {
                     disabled={isLoading || !selectedFile}
                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    {isLoading ? "Unlocking..." : "Unlock →"}
+                    {isLoading ? "Unlocking..." : "Unlock and Download →"}
+                    {!isLoading && <Download size={20} />}
                   </button>
 
                   {isLoading && (

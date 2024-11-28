@@ -8,8 +8,6 @@ import { PDFDocument } from "pdf-lib";
  * @returns {Promise<Blob>} - A promise that resolves with the encrypted PDF as a Blob
  */
 export const protectPDF = async (file, password) => {
-  console.log(password, "passwordprotect");
-
   try {
     // Validate inputs
     if (!file || !(file instanceof File)) {
@@ -30,7 +28,7 @@ export const protectPDF = async (file, password) => {
 
     // Load the PDF document
     const pdfDoc = await PDFDocument.load(fileBuffer);
-
+    console.log("Encrypting PDF with password:", password);
     // Save with encryption options
     const encryptedPdfBytes = await pdfDoc.save({
       userPassword: password,
@@ -45,7 +43,7 @@ export const protectPDF = async (file, password) => {
         documentAssembly: false,
       },
     });
-
+    console.log("Encrypted PDF bytes length:", encryptedPdfBytes.length);
     // Return as Blob
     return new Blob([encryptedPdfBytes], { type: "application/pdf" });
   } catch (error) {
@@ -103,25 +101,87 @@ export const getPDFEncryptionInfo = async (file) => {
 };
 
 export const unlockPDF = async (file, password) => {
+  console.log(password, "password from unlock page");
+
   try {
-    // Here you would implement the actual PDF unlocking logic
-    // This is a placeholder that simulates the process
-    return new Promise((resolve, reject) => {
-      // Simulate processing time
-      setTimeout(() => {
-        if (password && file) {
-          resolve({
-            success: true,
-            unlockedFile: file,
-            message: "PDF unlocked successfully",
-          });
-        } else {
-          reject(new Error("Invalid password or file"));
-        }
-      }, 1500);
-    });
+    // Validate inputs
+    if (!file || !(file instanceof File)) {
+      throw new Error("Invalid file input");
+    }
+
+    if (!password || typeof password !== "string" || password.length === 0) {
+      throw new Error("Invalid password");
+    }
+
+    // Read the file as ArrayBuffer
+    const fileBuffer = await file.arrayBuffer();
+
+    // Multiple attempts with different password handling
+    const passwordAttempts = [
+      password, // Original password
+      password.trim(), // Remove leading/trailing whitespaces
+      encodeURIComponent(password), // URL encode
+      encodeURIComponent(password.trim()), // URL encode and trim
+    ];
+
+    for (const attemptPassword of passwordAttempts) {
+      try {
+        const pdfDoc = await PDFDocument.load(fileBuffer, {
+          password: attemptPassword,
+          ignoreEncryption: false,
+        });
+
+        // If successful, save the PDF without encryption
+        const unlockedPdfBytes = await pdfDoc.save();
+
+        // Create a new Blob with the unlocked PDF
+        const unlockedFile = new Blob([unlockedPdfBytes], {
+          type: "application/pdf",
+        });
+
+        // Rename the file to indicate it's unlocked
+        unlockedFile.name = `Unlocked_${file.name}`;
+
+        return {
+          success: true,
+          unlockedFile: unlockedFile,
+          message: "PDF unlocked successfully",
+        };
+      } catch (decryptionError) {
+        // Continue to next attempt if current fails
+        console.log(
+          `Attempt with password: ${attemptPassword} failed`,
+          decryptionError
+        );
+      }
+    }
+
+    // If all attempts fail
+    throw new Error("Incorrect password. Please verify and try again.");
   } catch (error) {
-    throw new Error(`Failed to unlock PDF: ${error.message}`);
+    console.error("PDF Unlock Error:", error);
+    throw new Error(error.message || "Failed to unlock PDF");
+  }
+};
+
+// Additional utility to check encryption status
+export const checkPDFEncryption = async (file) => {
+  try {
+    const fileBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(fileBuffer, {
+      ignoreEncryption: true,
+    });
+
+    return {
+      isEncrypted: pdfDoc.isEncrypted,
+      encryptionMethod: pdfDoc.isEncrypted ? "Detected" : "None",
+    };
+  } catch (error) {
+    console.error("Encryption Check Error:", error);
+    return {
+      isEncrypted: false,
+      encryptionMethod: "Unknown",
+    };
   }
 };
 

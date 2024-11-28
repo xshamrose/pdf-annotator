@@ -177,12 +177,12 @@ const Sidebar: React.FC = () => {
       description: "Add annotations to PDF",
       route: "annotate",
     },
-    {
-      icon: Type,
-      label: "Edit Text",
-      description: "Modify text in PDF",
-      route: "text",
-    },
+    // {
+    //   icon: Type,
+    //   label: "Edit Text",
+    //   description: "Modify text in PDF",
+    //   route: "text",
+    // },
     {
       icon: Crop,
       label: "Crop",

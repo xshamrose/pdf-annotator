@@ -9,7 +9,8 @@ import ExportPage from "./components/export/Exportpage";
 import { AnnotatorProvider } from "./context/AnnotatorContext";
 import { useState } from "react";
 import { Button } from "./components/ui/button";
-import { Loader2 } from "lucide-react";
+
+import { Loader2, Edit, Crop, FileText } from "lucide-react";
 import { ThemeProvider } from "./providers";
 import Split from "./components/organizer/SplitPDF";
 import SplitResultsPage from "./components/export/SplitResultsPage";
@@ -23,6 +24,8 @@ import PDFSignComponent from "./components/pdfsign/PDFSignComponent";
 import Protect from "./components/more/Protect";
 import Unlock from "./components/more/Unlock";
 import Flatten from "./components/more/Flatten";
+import CropPdfComponent from "./components/pdf/CropPdfComponent";
+import WaterMarkComponent from "./components/pdf/WaterMarkComponent";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -35,6 +38,7 @@ function App() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       setSelectedFile(file);
       setIsLoading(false);
+      navigate("/upload/action-select"); // Navigate to action selection page
     } catch (error) {
       console.error("Error processing file:", error);
       setIsLoading(false);
@@ -46,6 +50,64 @@ function App() {
       <div className="bg-gray-50 p-4">{children}</div>
     </Layout>
   );
+
+  const ActionSelectionPage = () => {
+    if (!selectedFile) {
+      return (
+        <div className="text-center p-8">
+          <p className="text-gray-600">No document selected.</p>
+          <Button
+            onClick={() => navigate("/upload")}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Return to Upload
+          </Button>
+        </div>
+      );
+    }
+    return (
+      <div className="max-w-xl mx-auto space-y-4">
+        <h2 className="text-2xl font-bold text-center mb-6">
+          What would you like to do?
+        </h2>
+        <div className="grid grid-cols-3 gap-4">
+          <Button
+            variant="outline"
+            className="flex flex-col items-center p-6"
+            onClick={() => navigate("/annotate")}
+          >
+            <Edit className="h-8 w-8 mb-2" />
+            Annotate
+          </Button>
+          <Button
+            variant="outline"
+            className="flex flex-col items-center p-6"
+            onClick={() => navigate("/edit/crop")}
+          >
+            <Crop className="h-8 w-8 mb-2" />
+            Crop
+          </Button>
+          <Button
+            variant="outline"
+            className="flex flex-col items-center p-6"
+            onClick={() => navigate("/convert")}
+          >
+            <FileText className="h-8 w-8 mb-2" />
+            Convert
+          </Button>
+        </div>
+        <div className="text-center mt-4">
+          <Button
+            variant="link"
+            onClick={() => navigate("/upload")}
+            className="text-gray-600 hover:text-gray-800"
+          >
+            Upload a different file
+          </Button>
+        </div>
+      </div>
+    );
+  };
   // Create a wrapper for convert routes that includes the layout
   const ConvertWrapper = () => (
     <LayoutWrapper>
@@ -73,23 +135,17 @@ function App() {
                       <p className="mt-2 text-gray-600">Loading document...</p>
                     </div>
                   ) : (
-                    <>
-                      <div className="h-screen">
-                        <PDFUploader onFileSelect={handleFileSelect} />
-                        {selectedFile && !isLoading && (
-                          <div className="mt-4 text-center">
-                            <Button
-                              onClick={() => navigate("/annotate")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              Start Annotating
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </>
+                    <PDFUploader onFileSelect={handleFileSelect} />
                   )}
                 </div>
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/upload/action-select"
+            element={
+              <LayoutWrapper>
+                <ActionSelectionPage />
               </LayoutWrapper>
             }
           />
@@ -203,6 +259,50 @@ function App() {
                       className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       Return to Upload
+                    </Button>
+                  </div>
+                )}
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/edit/crop"
+            element={
+              <LayoutWrapper>
+                {selectedFile ? (
+                  <CropPdfComponent file={selectedFile} />
+                ) : (
+                  <div className="text-center p-8">
+                    <p className="text-gray-600">
+                      No document selected. Please upload a file first.
+                    </p>
+                    <Button
+                      onClick={() => navigate("/upload")}
+                      className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Go to Upload
+                    </Button>
+                  </div>
+                )}
+              </LayoutWrapper>
+            }
+          />
+          <Route
+            path="/edit/watermark"
+            element={
+              <LayoutWrapper>
+                {selectedFile ? (
+                  <WaterMarkComponent file={selectedFile} />
+                ) : (
+                  <div className="text-center p-8">
+                    <p className="text-gray-600">
+                      No document selected. Please upload a file first.
+                    </p>
+                    <Button
+                      onClick={() => navigate("/upload")}
+                      className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Go to Upload
                     </Button>
                   </div>
                 )}

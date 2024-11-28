@@ -192,7 +192,6 @@ const Protect = () => {
                   <p className="text-sm text-gray-500 mt-2">
                     128-bit AES encryption protection
                   </p>
-
                   <button
                     onClick={handleProtect}
                     disabled={isLoading}
