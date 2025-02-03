@@ -12,7 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const showSidebar = location.pathname !== "/";
 
   return (
-    <div className=" flex flex-col bg-background text-foreground">
+    <div className="flex flex-col bg-background text-foreground">
       <Header />
       <div className="flex">
         {showSidebar && <Sidebar />}

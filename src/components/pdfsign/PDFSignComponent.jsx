@@ -4,7 +4,6 @@ import {
   Upload,
   Pen,
   Calendar,
-  Type,
   ChevronLeft,
   ChevronRight,
   Minus,
@@ -19,18 +18,12 @@ const PDFSignComponent = () => {
   const [file, setFile] = useState(null);
   const [showSignModal, setShowSignModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
-  const [showTextModal, setShowTextModal] = useState(false);
   const [signatures, setSignatures] = useState([]);
   const [dates, setDates] = useState([]);
-  const [texts, setTexts] = useState([]);
   const [scale, setScale] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [numPages, setNumPages] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [textInput, setTextInput] = useState("");
-  const [textColor, setTextColor] = useState("#000000");
-  const [fontSize, setFontSize] = useState(16);
   const [activeSignatureTab, setActiveSignatureTab] = useState("draw");
   const [signatureImage, setSignatureImage] = useState(null);
 
@@ -109,61 +102,6 @@ const PDFSignComponent = () => {
     );
   };
 
-  // Text Modal Component
-  const TextModal = ({ onClose }) => {
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <Card className="w-[400px] p-6">
-          <h3 className="text-lg font-semibold mb-4">Add Text</h3>
-          <input
-            type="text"
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            placeholder="Enter text"
-            className="w-full p-2 border rounded-lg mb-4"
-          />
-          <div className="flex gap-4 mb-4">
-            <input
-              type="color"
-              value={textColor}
-              onChange={(e) => setTextColor(e.target.value)}
-              className="w-8 h-8"
-            />
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setFontSize(Math.max(8, fontSize - 2))}
-                className="p-1 border rounded"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <span>{fontSize}px</span>
-              <button
-                onClick={() => setFontSize(Math.min(72, fontSize + 2))}
-                className="p-1 border rounded"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 border rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleTextCreate}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              Add
-            </button>
-          </div>
-        </Card>
-      </div>
-    );
-  };
-
   // Handle date creation
   const handleDateCreate = () => {
     setDates([
@@ -176,22 +114,6 @@ const PDFSignComponent = () => {
       },
     ]);
     setShowDateModal(false);
-  };
-
-  // Handle text creation
-  const handleTextCreate = () => {
-    setTexts([
-      ...texts,
-      {
-        type: "text",
-        value: textInput,
-        position: { x: 100, y: 100 },
-        size: { width: 200, height: 40 },
-        color: textColor,
-        fontSize: fontSize,
-      },
-    ]);
-    setShowTextModal(false);
   };
 
   // Handle signature creation
@@ -208,24 +130,6 @@ const PDFSignComponent = () => {
     setShowSignModal(false);
   };
 
-  // // Handle element dragging
-  // const handleDragElement = (type, index, newPosition) => {
-  //   if (type === "signature") {
-  //     const newSignatures = [...signatures];
-  //     newSignatures[index].position = newPosition;
-  //     setSignatures(newSignatures);
-  //   } else if (type === "date") {
-  //     const newDates = [...dates];
-  //     newDates[index].position = newPosition;
-  //     setDates(newDates);
-  //   } else if (type === "text") {
-  //     const newTexts = [...texts];
-  //     newTexts[index].position = newPosition;
-  //     setTexts(newTexts);
-  //   }
-  // };
-
-  // Updated DraggableElement component with resize functionality
   const DraggableElement = ({
     type,
     element,
@@ -446,8 +350,6 @@ const PDFSignComponent = () => {
       </div>
     );
   };
-
-  // Make sure to update the handleDragElement function in the main component:
   const handleDragElement = (type, index, newPosition, newSize) => {
     const updateElements = (elements, setElements) => {
       const newElements = [...elements];
@@ -466,9 +368,6 @@ const PDFSignComponent = () => {
       case "date":
         updateElements(dates, setDates);
         break;
-      case "text":
-        updateElements(texts, setTexts);
-        break;
       default:
     }
   };
@@ -482,10 +381,6 @@ const PDFSignComponent = () => {
       const newDates = [...dates];
       newDates.splice(index, 1);
       setDates(newDates);
-    } else if (type === "text") {
-      const newTexts = [...texts];
-      newTexts.splice(index, 1);
-      setTexts(newTexts);
     }
   };
 
@@ -565,16 +460,6 @@ const PDFSignComponent = () => {
             </button>
             <button
               className={`px-6 py-3 ${
-                activeSignatureTab === "type"
-                  ? "border-b-2 border-blue-500 text-blue-500"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveSignatureTab("type")}
-            >
-              Type
-            </button>
-            <button
-              className={`px-6 py-3 ${
                 activeSignatureTab === "upload"
                   ? "border-b-2 border-blue-500 text-blue-500"
                   : "text-gray-500"
@@ -628,16 +513,6 @@ const PDFSignComponent = () => {
                     Clear
                   </button>
                 </div>
-              </div>
-            )}
-
-            {activeSignatureTab === "type" && (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Type your signature"
-                  className="w-full p-3 border rounded-lg"
-                />
               </div>
             )}
 
@@ -724,49 +599,7 @@ const PDFSignComponent = () => {
         </Card>
       ) : (
         // Document Signing Interface
-        <div className="grid grid-cols-[300px_1fr] gap-6 p-4">
-          {/* Left Sidebar - Tools */}
-          <div className="space-y-4">
-            <Card className="p-4">
-              <h3 className="font-semibold mb-4">Signing Tools</h3>
-              <div className="space-y-2">
-                <button
-                  onClick={() => setShowSignModal(true)}
-                  className="w-full flex items-center gap-2 p-3 hover:bg-gray-50 rounded-lg"
-                >
-                  <Pen className="w-5 h-5" />
-                  <span>Add Signature</span>
-                </button>
-                <button
-                  onClick={() => setShowDateModal(true)}
-                  className="w-full flex items-center gap-2 p-3 hover:bg-gray-50 rounded-lg"
-                >
-                  <Calendar className="w-5 h-5" />
-                  <span>Add Date</span>
-                </button>
-                <button
-                  onClick={() => setShowTextModal(true)}
-                  className="w-full flex items-center gap-2 p-3 hover:bg-gray-50 rounded-lg"
-                >
-                  <Type className="w-5 h-5" />
-                  <span>Add Text</span>
-                </button>
-              </div>
-            </Card>
-            <Card className="p-4">
-              <button
-                onClick={() => {
-                  // Implement save functionality here
-                  console.log("Saving document...");
-                }}
-                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Save Signed Document
-              </button>
-            </Card>
-          </div>
-
+        <div className="grid grid-cols-[1fr_300px] gap-6 p-4">
           {/* Main Content - Document Preview */}
           <div className="relative bg-white rounded-lg shadow">
             <div
@@ -801,18 +634,6 @@ const PDFSignComponent = () => {
                     key={`date-${index}`}
                     type="date"
                     element={date}
-                    index={index}
-                    onDragEnd={handleDragElement}
-                    onDelete={handleDeleteElement}
-                    scale={scale}
-                  />
-                ))}
-
-                {texts.map((text, index) => (
-                  <DraggableElement
-                    key={`text-${index}`}
-                    type="text"
-                    element={text}
                     index={index}
                     onDragEnd={handleDragElement}
                     onDelete={handleDeleteElement}
@@ -871,6 +692,41 @@ const PDFSignComponent = () => {
               </div>
             </div>
           </div>
+
+          {/* Right Sidebar - Tools */}
+          <div className="space-y-4">
+            <Card className="p-4">
+              <h3 className="font-semibold mb-4">Signing Tools</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setShowSignModal(true)}
+                  className="w-full flex items-center gap-2 p-3 hover:bg-gray-50 rounded-lg"
+                >
+                  <Pen className="w-5 h-5" />
+                  <span>Add Signature</span>
+                </button>
+                <button
+                  onClick={() => setShowDateModal(true)}
+                  className="w-full flex items-center gap-2 p-3 hover:bg-gray-50 rounded-lg"
+                >
+                  <Calendar className="w-5 h-5" />
+                  <span>Add Date</span>
+                </button>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <button
+                onClick={() => {
+                  // Implement save functionality here
+                  console.log("Saving document...");
+                }}
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Save Signed Document
+              </button>
+            </Card>
+          </div>
         </div>
       )}
 
@@ -882,7 +738,6 @@ const PDFSignComponent = () => {
         />
       )}
       {showDateModal && <DateModal onClose={() => setShowDateModal(false)} />}
-      {showTextModal && <TextModal onClose={() => setShowTextModal(false)} />}
     </div>
   );
 };

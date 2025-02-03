@@ -209,6 +209,7 @@ const PDFRotate = () => {
         processedPdfs.set(fileName, processedPdf);
         totalPages += pages.length;
         totalSize += processedPdf.size;
+        console.log(totalSize);
       }
 
       // If only one PDF, send directly to export page

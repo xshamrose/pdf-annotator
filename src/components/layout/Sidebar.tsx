@@ -11,10 +11,10 @@ import {
   FileSpreadsheet,
   Presentation,
   Crop,
-  Type,
+  // Type,
   FileSignature,
   Stamp,
-  Hash,
+  // Hash,
   Combine,
   Split as SplitIcon,
   RotateCw,
@@ -201,12 +201,12 @@ const Sidebar: React.FC = () => {
       description: "Add watermark to PDF",
       route: "watermark",
     },
-    {
-      icon: Hash,
-      label: "Number Pages",
-      description: "Add page numbers to PDF",
-      route: "number",
-    },
+    // {
+    //   icon: Hash,
+    //   label: "Number Pages",
+    //   description: "Add page numbers to PDF",
+    //   route: "number",
+    // },
   ];
 
   const moreItems: ConvertItem[] = [
